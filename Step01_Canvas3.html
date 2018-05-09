@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step01_Canvas3.html</title>
+	<style>
+		#myCanvas{
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="500" height="500"></canvas>
+	<p id="dis"></p>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var canvas = $("#myCanvas");
+		var context = canvas[0].getContext("2d");
+
+		var rabbitImg = new Image();
+		rabbitImg.src = "images/rabbit_1.png";
+
+		var rabbitX = 250, rabbitY = 250;
+		// rabbitImg.onload = function(){
+		// 	context.drawImage(rabbitImg, 0, 0, 100, 100);
+		// };
+		setInterval(function(){
+			// canvas의 특정 사각형 역역 clear
+			// .clearRect(x, y, width, height)
+			// context.clearRect(0,0,500,500)
+			context.drawImage(rabbitImg, rabbitX, rabbitY, 100, 100);
+		}, 20);
+
+		var mdown = false;
+		$("#myCanvas").on("mousedown", function(event){
+			mdown = true;
+			$("#dis").text("mouse down");
+		});
+		$("#myCanvas").on("mouseup", function(event){
+			mdown = false;
+			$("#dis").text("mouse up");
+			context.clearRect(rabbitX,rabbitY,100,100)
+			rabbitX = event.offsetX - 50;
+			rabbitY = event.offsetY - 50;
+
+			$("#dis").text("X: " + event.offsetX + "  ,  Y: " + event.offsetY);
+		});
+
+		// canvas 안에서의 mouse의 좌표를 rabbitX, rabbitY에 반영
+		// $("#myCanvas").on("mousemove", function(event){
+		// 	if(mdown) {
+		// 		rabbitX = event.offsetX - 50;
+		// 		rabbitY = event.offsetY - 50;
+
+		// 		$("#dis").text("X: " + event.offsetX + "  ,  Y: " + event.offsetY);
+		// 	}
+		// });
+	</script>
+</body>
+</html>
