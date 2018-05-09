@@ -11,6 +11,8 @@
 </head>
 <body>
 <canvas id="myCanvas" width="500" height="500"></canvas>
+<button class="me">click me</button>
+<script src="js/jquery-3.3.1.js"></script>
 <script>
 	// canvas 의 참조값 얻어오기 
 	var canvas = document.querySelector("#myCanvas");
@@ -67,6 +69,15 @@
 	context.stroke();
 	context.closePath();
 
+	$(".me").click(function(){
+		var context = document.querySelector("#myCanvas").getContext("2d");
+		context.beginPath();
+		context.lineWidth = 30;
+		context.lineCap = "round";
+		context.lineJoin = "round";
+		context.clearRect(100, 300, 100, 100);
+		context.closePath();
+	});
 </script>		
 </body>
 </html>
