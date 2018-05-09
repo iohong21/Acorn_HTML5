@@ -44,17 +44,14 @@
 		var isDown = false;
 
 		var drawBox = function(event){
-			context.clearRect(prev.X, prev.Y, prev.W, prev.H);
-			var w = Math.abs(event.offsetX - prev.X);
-			var h = Math.abs(event.offsetY - prev.Y);
+			context.clearRect(prev.X-2, prev.Y-2, prev.W+4, prev.H+4);
+			// var w = Math.abs(event.offsetX - prev.X);
+			// var h = Math.abs(event.offsetY - prev.Y);
+			var w = event.offsetX - prev.X;
+			var h = event.offsetY - prev.Y;
 
 			context.strokeStyle="#ff0000";
 			context.strokeRect(prev.X, prev.Y, w, h);
-			// if(prev.W > w) {
-			// 	context.clearRect(prev.X, prev.Y, w, h);
-			// } else {
-			// 	context.strokeRect(prev.X, prev.Y, w, h);
-			// }
 			prev.W = w;
 			prev.H = h;
 		}

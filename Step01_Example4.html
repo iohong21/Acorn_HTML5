@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step01_Canvas4.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<style>
+		#myCanvas{
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="500" height="500"></canvas>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-2">
+				<button id="reverseBtn" class="btn btn-primary btn-block">반시계방향</button>
+			</div>
+			<div class="col-xs-2">
+				<button id="rotateBtn" class="btn btn-primary btn-block">시계방향</button>
+			</div>
+		</div>
+	</div>
+	<p id="info"></p>
+
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var canvas = document.querySelector("#myCanvas")
+		var context = canvas.getContext("2d");
+		var currAngle = 0;
+
+		var angle = function(r) {
+			return (Math.PI / 180) * r;
+		}
+
+		var draw = function() {
+			clockImg.onload = function(){
+				context.rotate(currAngle);
+				context.drawImage(clockImg, -150, -150, 300, 300);
+				context.drawImage(hourImg, -150, -150, 300, 300);
+			}
+		}
+
+		var clockImg = new Image();
+		clockImg.src = "images/dial.png"
+
+		var hourImg = new Image();
+		hourImg.src = "images/clock_hour.png";
+
+		var minImg = new Image();
+		minImg.src = "images/clock_minpng";
+
+		var secImg = new Image();
+		secImg.src = "images/clock_sec.png";
+
+
+		// clockImg.onload = function(){
+		// 	// context 좌표계를 평행이동 시키기
+		// 	context.translate(250, 250);
+		// 	draw(currAngle);
+
+		// 	// // context 좌표계를 회전 시키기
+		// 	context.rotate(angle(currAngle));
+
+		// 	context.drawImage(clockImg, -150, -150, 300, 300);
+		// 	context.drawImage(hourImg, -150, -150, 300, 300);
+		// }
+		$("#reverseBtn").click(function(){
+			currAngle = angle(-10);
+			draw(currAngle);
+		});
+		$("#rotateBtn").click(function(){
+			currAngle = angle(10);
+			draw(currAngle);
+		});
+	</script>
+</body>
+</html>
