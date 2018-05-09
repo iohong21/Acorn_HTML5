@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step01_Example3.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<style>
+		#myCanvas{
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<canvas id="myCanvas" width="500" height="500"></canvas>
+		<div class="row">
+			<div class="col-xs-2">
+				<button id="clear">초기화</button>
+			</div>
+			<div class="col-xs-2">
+				<input type="color" id="color">
+			</div>
+			<div class="row">
+				<div class="col-xs-2">
+					<input id="width" min="1" max="20" type="range" value="5">
+				</div>
+				<div class="col-xs-3">
+					<strong id="currentWidth">5</strong>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-3">
+				<button class="btn btn-success btn-block" id="btnSave">Save</button>
+			</div>
+			<div class="col-xs-3">
+				<button class="btn btn-danger btn-block" id="btnLoad">Load</button>
+			</div>
+		</div>
+		<!-- <img src="images/kim1.png" id="myImg"> -->
+	</div>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var isDown = false;
+		var currColor = "#000000";
+		var currWidth = 5;
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
+
+		$("#btnSave").click(function(){
+			var imgData = canvas.toDataURL();
+			// $("#myImg").attr("src", imgData);
+			localStorage.imageData = imgData;
+		});
+
+		$("#btnLoad").click(function(){
+			var loadImg = new Image();
+			loadImg.src = localStorage.imageData;
+			loadImg.onload=function(){
+				context.drawImage(loadImg,0,0,500,500);
+			};
+		});
+
+		$("#myCanvas").mousedown(function(event){
+			isDown = true;
+			context.strokeStyle = currColor;
+			context.lineWidth = currWidth;
+			context.lineJoin = "round";
+			context.lineCap = "round";
+			context.beginPath();
+			context.moveTo(event.offsetX, event.offsetY);
+		});
+		$("#myCanvas").mousemove(function(event){
+			if(isDown) {
+				context.lineTo(event.offsetX, event.offsetY);
+				context.stroke();
+			}
+		});
+		$("#myCanvas").mouseup(function(event){
+			context.lineTo(event.offsetX, event.offsetY);
+			context.stroke();
+			context.closePath();
+			isDown = false;
+		});
+		$("#myCanvas").mouseout(function(event){
+			isDown = false;
+		});
+		$("#clear").click(function(){
+			context.clearRect(0, 0, 500, 500);
+		});
+
+		$("#color").on("change", function(){
+			currColor = $(this).val();
+		});
+
+		$("#width").on("change input", function(){
+			currWidth = $(this).val();
+			$("#currentWidth").text($(this).val());
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>myPaint.html</title>
+	<style>
+		#tools{
+			border: 1px solid black;
+			width: 500px;
+			height: 50px;
+		}
+		#tools>ul{
+			list-style-type: none;
+		}
+		#tools>ul>li{
+			float: left;
+			margin: 0;
+			padding: 0 10px;
+		}
+		#tools>ul>li>a{
+			text-decoration: none;
+			color: black;
+		}
+		#myCanvas{
+			border: 1px solid red;
+			/*margin-top: 2px;*/
+			width: 500px;
+			height: 500px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas"></canvas>
+	<div id="tools">
+		<ul>
+			<li><a id="line" href="#">선</a></li>
+			<li><a id="rect" href="#">사각형</a></li>
+			<li><a id="circle" href="#">원</a></li>
+		</ul>
+	</div>
+	<p id="info"></p>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var drawType = {
+			none: "notselect", 
+			line: "line",
+			rectangle: "rectangle", 
+			circle: "circle"
+		};
+		var isFirst = true;
+		var currentDrawType = drawType.none;
+		var pos = {X:0, Y:0};
+		var context = $("#myCanvas")[0].getContext("2d");
+
+		var getAngle = function(r){
+			return (Math.PI/180)*r;
+		}
+		$("#line").click(function(){
+			currentDrawType = drawType.line;
+			$("#info").text("line click");
+		});
+		$("#rect").click(function(){
+			currentDrawType = drawType.rectangle;
+			$("#info").text("rect click");
+		});
+		$("#circle").click(function(){
+			currentDrawType = drawType.circle;
+			$("#info").text("circle click");
+		});
+
+		$("#myCanvas").mousedown(function(event){
+			if(currentDrawType != drawType.none) {
+				if(isFirst) {
+					pos.X = event.offsetX;
+					pos.Y = event.offsetY;
+
+					context.fillStyle = "blue";
+					context.lineWidth = 1;
+					context.fillRect(10, 10, 50, 50);
+
+					$("#info").text("mouse down  X: " + pos.X + "   ,   Y: " + pos.Y);
+				} else {
+					if(currentDrawType == drawType.line) {
+						context.strokeStyle="#0000ff";
+						// context.lineWidth=2;
+						context.beginPath();
+						context.moveTo(pos.X, pos.Y);
+						context.lineTo(event.offsetX, event.offsetY);
+						context.stroke();
+						context.closePath();
+						$("#info").text("X: "+ pos.X + " , Y: " + pos.Y + "   to  X: " + event.offsetX + " , Y: " + event.offsetY);
+					}
+				}
+				isFirst = !isFirst;
+			}
+		});
+	</script>
+</body>
+</html>
