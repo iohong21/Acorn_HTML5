@@ -72,10 +72,10 @@
 	$(".me").click(function(){
 		var context = document.querySelector("#myCanvas").getContext("2d");
 		context.beginPath();
-		context.lineWidth = 30;
-		context.lineCap = "round";
-		context.lineJoin = "round";
-		context.clearRect(100, 300, 100, 100);
+		// context.lineWidth = 30;
+		// context.lineCap = "round";
+		// context.lineJoin = "round";
+		context.clearRect(100-5, 300-5, 100+10, 100+10);
 		context.closePath();
 	});
 </script>		

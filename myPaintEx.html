@@ -42,14 +42,19 @@
 		var canvas = document.querySelector("#myCanvas");
 		var context = canvas.getContext("2d");
 		var isDown = false;
+		var boxW = 5, boxHarf = boxW / 2;
 
 		var drawBox = function(event){
 			// context.clearRect(prev.X-2, prev.Y-2, prev.W+4, prev.H+4);
-			context.clearRect(prev.X, prev.Y, prev.W, prev.H);
+			context.clearRect(prev.X - boxHarf, 
+				              prev.Y - boxHarf - 1, 
+				              prev.W + boxW + 1, 
+				              prev.H + boxW + 1);
 			var w = event.offsetX - prev.X;
 			var h = event.offsetY - prev.Y;
 
 			context.strokeStyle="#ff0000";
+			context.lineWidth = boxW;
 			context.strokeRect(prev.X, prev.Y, w, h);
 			prev.W = w;
 			prev.H = h;

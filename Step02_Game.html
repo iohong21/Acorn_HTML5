@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step02_Game.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/animate.css">
+	<style>
+		.bounce{
+			animation-duration: 0.5s;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="800" height="500"></canvas>
+	<div id="info"></div>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var W = 800, H = 500;
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
+
+		var isFire = false;
+		var isFireProcess = false;
+
+		// 배경 이미지 로딩하기
+		var backImg = new Image();
+		backImg.src = "images/background.jpg";
+
+		// 스나이프 이미지 로딩하기
+		var snipeImg = new Image();
+		snipeImg.src = "images/snipe.png";
+
+		// 토끼 이미지 로딩하기
+		var rabbit1 = new Image();
+		rabbit1.src = "images/rabbit_1.png";
+		var rabbit2 = new Image();
+		rabbit2.src = "images/rabbit2.png";
+
+		// 토끼 이미지의 참조값을 배열에 저장
+		var rabbitImgs = [rabbit1, rabbit2];
+		var rabbitX = 400, rabbitY = 250;
+		var rabbitW = 100, rabbitH = 100, rabbitR = parseInt(rabbitW / 2);
+		var rabbitSpeed = 10;
+		var rabbitIndex = 1;
+
+		// 총알 구멍 이미지 로딩
+		var holeImg = new Image();
+		holeImg.src = "images/hole.png";
+		var holeX = 0, hole=Y = 0;
+		var holeW = 20, holeH = 20, holeR = parseInt(holeW / 2);
+		var holes = [];
+
+		// 스나이프 이미지의 좌표를 저장할 변수
+		var snipeX = 0,  snipeY = 0;
+		var snipeW = 100, snipeH = 100, snipeR = parseInt(snipeW / 2);
+
+		setInterval(drawScreen, 20);
+
+		// 함수 호출 카운트를 셀 변수
+		var count = 0;
+
+		// 효과음 로딩하기
+		var fireSound = new Audio("sounds/fire.wav");
+		var screamSound = new Audio("sounds/birddie.mp3");
+
+		var bubbleImgs = [];
+		for(var i=0; i<6; i++) {
+			var tmp = new Image();
+			tmp.src = "images/blood" + i + ".png";
+			// tmp.src = "images/blood" + i + ".png";
+			// bloodImsg.push(tmp);
+			tmp.src = "images/b" + i + ".png";
+			bubbleImgs.push(tmp);
+		}
+
+		// var bloodImgs = [];
+		// for(var i=0; i<6; i++) {
+		// 	tmp.src = "images/blood" + i + ".png";
+		// 	bloodImgs.push(tmp);
+		// }
+
+		// 풍선 객체를 담을 배열
+		var bubbles = [];
+		var bubbleW = 50, bubbleH = 50, bubbleR = parseInt(bubbleW / 2);
+
+		var isJang = true; 
+		var jangOffsetY = 0;
+		var jangSound = new Audio("sounds/jang.wav");
+
+		function drawScreen() {
+			// 배경이미지 그리기
+			context.drawImage(backImg, 0, 0, W, H);
+
+			// 총알 그리기
+			for(var i=0; i<holes.length; i++) {
+				context.drawImage(holeImg, holes[i].X-holeR, holes[i].Y-holeR, holeW, holeH);
+			}
+
+			// 풍선(파편) 그리기
+			for(var i=0; i<bubbles.length; i++) {
+				var tmp=bubbles[i];
+				if(!tmp.isOut) {
+					context.drawImage(bubbleImgs[tmp.index], tmp.X-bubbleR, tmp.Y-bubbleR, bubbleW, bubbleH);
+				}
+			}
+
+			// 토끼 이미지 그리기
+			// rabbitIndex = Math.abs(rabbitIndex-1);
+			context.drawImage(rabbitImgs[rabbitIndex], rabbitX-rabbitR, rabbitY-rabbitR, rabbitW, rabbitH);
+
+			// 스나이프 이미지 그리기
+			context.drawImage(snipeImg, snipeX-snipeR, snipeY-snipeR-jangOffsetY, snipeW, snipeH);
+
+			count++;
+			rabbitAni();
+			moveBubbles();
+			checkBubbles();
+
+			if(!isJang) {
+				jangOffsetY -= 10;
+				if(jangOffsetY <= 0) {
+					$("#myCanvas").addClass("animated bounce");
+					jangOffsetY = 0;
+					isJang = true;
+					jangSound.currentTime = 0;
+					jangSound.play();
+				}
+			}
+		};
+
+		// 화면을 벗어난 풍선을 배열에서 제거
+		function checkBubbles(){
+			for(var i=bubbles.length-1; i>=0; i--){
+				// var tmp = bubbles[i];
+				// 화면을 벗어났으면
+				if(bubbles[i].isOut) {
+					// 배열에서 제거
+					bubbles.splice(i,1);
+				}
+			}
+		};
+
+		// 풍선 움직이는 함수
+		function moveBubbles(){
+			for(var i=0; i<bubbles.length; i++){
+				var tmp=bubbles[i];
+				tmp.X += tmp.speedX;
+				tmp.Y += tmp.speedY;
+				tmp.isOut = tmp.X < -bubbleR || tmp.X > 800+bubbleR || tmp.Y < -bubbleR || tmp.Y > 500+bubbleR;
+			}
+		}
+
+		// 토끼 애니메이션
+		function rabbitAni(){
+			if(count % rabbitSpeed == 0) {
+				rabbitIndex = ++rabbitIndex % 2;
+			}
+		};
+
+		$("#myCanvas").mousemove(function(event){
+			// 마우스의 좌표를 snipe 좌표에 적용
+			snipeX = event.offsetX;
+			snipeY = event.offsetY;
+		});
+
+		// mousedown 이벤트 처리
+		$("#myCanvas").mousedown(function(event){
+ 			$("#myCanvas").removeClass("animated bounce");			
+			// 장전되었으면
+			if(isJang) {
+				// 총을 쏘았으므로 장전 해제
+				isJang = false;
+
+				// 반동값
+				jangOffsetY = 150;
+
+				// 효과음 재생
+				fireSound.currentTime = 0;
+				fireSound.play();
+
+				// 현재 좌표 저장
+				var obj = { X:event.offsetX, Y:event.offsetY };
+				holes.push(obj);
+
+				isFire = (event.offsetX > rabbitX-rabbitR && event.offsetX < rabbitX+rabbitR) &&
+					     (event.offsetY > rabbitY-rabbitR && event.offsetY < rabbitY+rabbitR);
+
+				if(isFire){
+					//1. 비명을 지른다
+					screamSound.currentTime = 0;
+					screamSound.play();
+
+					//2. 토끼 파편 6개 만든다
+					for(var i=0; i<6; i++){
+						var tmp = {};
+						tmp.index = i;
+						tmp.X = rabbitX;
+						tmp.Y = rabbitY;
+						tmp.speedX = Math.random()*30-20;
+						tmp.speedY = Math.random()*30-20;
+						tmp.isOut = false;
+						bubbles.push(tmp);
+					}
+
+					// var tmp = {
+					// 	index: 0,
+					// 	X: rabbitX,
+					// 	Y: rabbitY,
+					// 	size: 50,
+					// };
+
+					//3. 토끼를 랜덤한 위치로 옮긴다.
+					rabbitX = Math.random() * (800 - rabbitW) + rabbitR;
+					rabbitY = Math.random() * (500 - rabbitW) + rabbitR;
+				}
+			}
+		});
+	</script>
+</body>
+</html>

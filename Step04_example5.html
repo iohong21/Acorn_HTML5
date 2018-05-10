@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step01_Example4.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<style>
+		#myCanvas{
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="500" height="500"></canvas>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
+
+		// var hour = 9, min = 30, sec = 5;
+		var dialImg = new Image();
+		dialImg.src = "images/dial.png";
+
+		var secImg = new Image();
+		secImg.src = "images/clock_sec.png";
+
+		var minImg = new Image();
+		minImg.src = "images/clock_min.png";
+
+		var hourImg = new Image();
+		hourImg.src = "images/clock_hour.png";
+
+		var dotImg = new Image();
+		dotImg.src = "images/clock_point.png";
+
+
+		setInterval(drawClock, 1000);
+
+		function drawClock(){
+			var d = new Date();
+			var sec = d.getSeconds();
+			var min = d.getMinutes();
+			var hour = d.getHours();
+
+			// 회전 각도 계산
+			var rSec = sec * 6 * (Math.PI / 180);		// 초침의 회전각도
+			// var secOffset = sec / 10;
+			var secOffset = (6 * (sec / 60)) * (Math.PI / 180);  // 초침 회전에 따른 분침 이동
+			var rMin = min * 6 * (Math.PI / 180) + secOffset;	 // 분침 이동
+			// var minOffset = min / 2;
+			var minOffset = (30 * (min / 60) * (Math.PI / 180))	 // 분침 회전에 따른 시침 이동
+			var rHour = hour * 30 * (Math.PI / 180) + minOffset;	// 시침 이동
+
+
+			// context의 현재 상태 저장하기 (평행이동 , 회전 등을 하기 전)
+			context.save();
+			// context 평행 이동
+			context.translate(250, 250);
+
+			// 시계 다이얼 이미지 그리기
+			context.drawImage(dialImg, -150, -150, 300, 300);
+
+			// 초침 그리기
+			context.rotate(rSec);
+			context.drawImage(secImg, -3, -100, 6, 100);
+			
+			// 분침 그리기
+			context.rotate(rMin - rSec);
+			context.drawImage(minImg, -3, -100, 6, 100);
+			
+			// 시침 그리기
+			context.rotate(rHour - rMin);
+			context.drawImage(hourImg, -3, -100, 6, 100);
+
+			context.rotate(rHour * -1);
+			context.drawImage(dotImg, -7, -7);
+
+			// 저장된 context 복구
+			context.restore();
+		}
+	</script>
+	<script src="https://gist.github.com/iohong21/18bc15ade5cc4bc48746fc91eaafb91f.js"></script>
+</body>
+</html>
