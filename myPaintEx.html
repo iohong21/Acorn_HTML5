@@ -44,9 +44,8 @@
 		var isDown = false;
 
 		var drawBox = function(event){
-			context.clearRect(prev.X-2, prev.Y-2, prev.W+4, prev.H+4);
-			// var w = Math.abs(event.offsetX - prev.X);
-			// var h = Math.abs(event.offsetY - prev.Y);
+			// context.clearRect(prev.X-2, prev.Y-2, prev.W+4, prev.H+4);
+			context.clearRect(prev.X, prev.Y, prev.W, prev.H);
 			var w = event.offsetX - prev.X;
 			var h = event.offsetY - prev.Y;
 

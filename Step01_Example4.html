@@ -3,7 +3,6 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Step01_Canvas4.html</title>
-	<link rel="stylesheet" href="css/bootstrap.css">
 	<style>
 		#myCanvas{
 			border: 1px solid red;
@@ -11,69 +10,75 @@
 	</style>
 </head>
 <body>
-	<canvas id="myCanvas" width="500" height="500"></canvas>
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-2">
-				<button id="reverseBtn" class="btn btn-primary btn-block">반시계방향</button>
-			</div>
-			<div class="col-xs-2">
-				<button id="rotateBtn" class="btn btn-primary btn-block">시계방향</button>
-			</div>
-		</div>
-	</div>
-	<p id="info"></p>
+<canvas id="myCanvas" width="500" height="500"></canvas>
+<script src="js/jquery-3.3.1.js"></script>
+<script>
+    var canvas=document.querySelector("#myCanvas");
+    // context 객체
+    var context=canvas.getContext("2d");
 
-	<script src="js/jquery-3.3.1.js"></script>
-	<script>
-		var canvas = document.querySelector("#myCanvas")
-		var context = canvas.getContext("2d");
-		var currAngle = 0;
+    var hourImg = new Image();
+    var minImg = new Image();
+    var secImg = new Image();
+    var clockImg = new Image();
 
-		var angle = function(r) {
-			return (Math.PI / 180) * r;
-		}
+    var sec, min, hour;
 
-		var draw = function() {
-			clockImg.onload = function(){
-				context.rotate(currAngle);
-				context.drawImage(clockImg, -150, -150, 300, 300);
-				context.drawImage(hourImg, -150, -150, 300, 300);
-			}
-		}
+    hourImg.src = "images/clock_hour.png";
+    minImg.src = "images/clock_min.png";
+    secImg.src = "images/clock_sec.png";
+    clockImg.src="images/dial.png";
 
-		var clockImg = new Image();
-		clockImg.src = "images/dial.png"
+    var getTime = function(){
+        var d = new Date();
+        hour = d.getHours()%12;
+        min = d.getMinutes()%60;
+        sec = d.getSeconds()%60;
+    };
+    clockImg.onload=function(){
+        setInterval(function(){
+          context.save();
+          context.translate(250, 250);
+          context.drawImage(clockImg, -150, -150, 300, 300);
+          // var sec = 5, min = 30, hour = 9;
+          getTime();
 
-		var hourImg = new Image();
-		hourImg.src = "images/clock_hour.png";
+          var r12 = 30 * 6 * (Math.PI / 180);
+          var secR = r12 + (sec * 6 * (Math.PI / 180));
+          var minR = (secR * -1) + r12 + (min * 6 * (Math.PI / 180));
+          var hourR = (r12 + (min * 6 * (Math.PI / 180)) * -1) + r12
+                    + ((hour * 5 * 6) * (Math.PI / 180)) + ((min / 2) * (Math.PI/180));
+           // var hourR = parseInt(min / 1.2) * 6;
+          context.rotate(secR);
+          context.drawImage(secImg, 0, 5);
+          // context.rotate(secR * -1);
+          context.rotate(minR);
+          context.drawImage(minImg, -5, 0);
+          context.rotate(hourR);
+          context.drawImage(hourImg, -1, -22);
 
-		var minImg = new Image();
-		minImg.src = "images/clock_minpng";
+          context.restore();
+        }, 1000);
 
-		var secImg = new Image();
-		secImg.src = "images/clock_sec.png";
-
-
-		// clockImg.onload = function(){
-		// 	// context 좌표계를 평행이동 시키기
-		// 	context.translate(250, 250);
-		// 	draw(currAngle);
-
-		// 	// // context 좌표계를 회전 시키기
-		// 	context.rotate(angle(currAngle));
-
-		// 	context.drawImage(clockImg, -150, -150, 300, 300);
-		// 	context.drawImage(hourImg, -150, -150, 300, 300);
-		// }
-		$("#reverseBtn").click(function(){
-			currAngle = angle(-10);
-			draw(currAngle);
-		});
-		$("#rotateBtn").click(function(){
-			currAngle = angle(10);
-			draw(currAngle);
-		});
-	</script>
+        // context.translate(250, 250);
+      	// context.drawImage(clockImg, -150, -150, 300, 300);
+        //
+        // var sec = 5, min = 30, hour = 9;
+        //
+        // var r12 = 30 * 6 * (Math.PI / 180);
+        // var secR = r12 + (sec * 6 * (Math.PI / 180));
+        // var minR = (secR * -1) + r12 + (min * 6 * (Math.PI / 180));
+        // var hourR = (r12 + (min * 6 * (Math.PI / 180)) * -1) + r12
+        //           + ((hour * 5 * 6) * (Math.PI / 180)) + ((min / 2) * (Math.PI/180));
+        //  // var hourR = parseInt(min / 1.2) * 6;
+        // context.rotate(secR);
+        // context.drawImage(secImg, -3, 0);
+        // // context.rotate(secR * -1);
+        // context.rotate(minR);
+        // context.drawImage(minImg, -5, 0);
+        // context.rotate(hourR);
+        // context.drawImage(hourImg, -1, -22);
+    };
+</script>
 </body>
 </html>
