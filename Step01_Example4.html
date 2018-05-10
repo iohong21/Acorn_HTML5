@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Step01_Canvas4.html</title>
+	<title>Step01_Example4.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
 	<style>
 		#myCanvas{
 			border: 1px solid red;
@@ -10,75 +11,84 @@
 	</style>
 </head>
 <body>
-<canvas id="myCanvas" width="500" height="500"></canvas>
-<script src="js/jquery-3.3.1.js"></script>
-<script>
-    var canvas=document.querySelector("#myCanvas");
-    // context 객체
-    var context=canvas.getContext("2d");
+	<canvas id="myCanvas" width="500" height="500"></canvas>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
 
-    var hourImg = new Image();
-    var minImg = new Image();
-    var secImg = new Image();
-    var clockImg = new Image();
+		var hour = 9, min = 30, sec = 5;
+		var dialImg = new Image();
+		dialImg.src = "images/dial.png";
 
-    var sec, min, hour;
+		var secImg = new Image();
+		secImg.src = "images/clock_sec.png";
 
-    hourImg.src = "images/clock_hour.png";
-    minImg.src = "images/clock_min.png";
-    secImg.src = "images/clock_sec.png";
-    clockImg.src="images/dial.png";
+		var minImg = new Image();
+		minImg.src = "images/clock_min.png";
 
-    var getTime = function(){
-        var d = new Date();
-        hour = d.getHours()%12;
-        min = d.getMinutes()%60;
-        sec = d.getSeconds()%60;
-    };
-    clockImg.onload=function(){
-        setInterval(function(){
-          context.save();
-          context.translate(250, 250);
-          context.drawImage(clockImg, -150, -150, 300, 300);
-          // var sec = 5, min = 30, hour = 9;
-          getTime();
+		var hourImg = new Image();
+		hourImg.src = "images/clock_hour.png";
 
-          var r12 = 30 * 6 * (Math.PI / 180);
-          var secR = r12 + (sec * 6 * (Math.PI / 180));
-          var minR = (secR * -1) + r12 + (min * 6 * (Math.PI / 180));
-          var hourR = (r12 + (min * 6 * (Math.PI / 180)) * -1) + r12
-                    + ((hour * 5 * 6) * (Math.PI / 180)) + ((min / 2) * (Math.PI/180));
-           // var hourR = parseInt(min / 1.2) * 6;
-          context.rotate(secR);
-          context.drawImage(secImg, 0, 5);
-          // context.rotate(secR * -1);
-          context.rotate(minR);
-          context.drawImage(minImg, -5, 0);
-          context.rotate(hourR);
-          context.drawImage(hourImg, -1, -22);
 
-          context.restore();
-        }, 1000);
+		// 회전 각도 계산
+		var rSec = sec * 6 * (Math.PI / 180);		// 초침의 회전각도
+		// var secOffset = sec / 10;
+		var secOffset = (6 * (sec / 60)) * (Math.PI / 180);  // 초침 회전에 따른 분침 이동
+		var rMin = min * 6 * (Math.PI / 180) + secOffset;	 // 분침 이동
+		// var minOffset = min / 2;
+		var minOffset = (30 * (min / 60) * (Math.PI / 180))	 // 분침 회전에 따른 시침 이동
+		var rHour = hour * 30 * (Math.PI / 180) + minOffset;	// 시침 이동
 
-        // context.translate(250, 250);
-      	// context.drawImage(clockImg, -150, -150, 300, 300);
-        //
-        // var sec = 5, min = 30, hour = 9;
-        //
-        // var r12 = 30 * 6 * (Math.PI / 180);
-        // var secR = r12 + (sec * 6 * (Math.PI / 180));
-        // var minR = (secR * -1) + r12 + (min * 6 * (Math.PI / 180));
-        // var hourR = (r12 + (min * 6 * (Math.PI / 180)) * -1) + r12
-        //           + ((hour * 5 * 6) * (Math.PI / 180)) + ((min / 2) * (Math.PI/180));
-        //  // var hourR = parseInt(min / 1.2) * 6;
-        // context.rotate(secR);
-        // context.drawImage(secImg, -3, 0);
-        // // context.rotate(secR * -1);
-        // context.rotate(minR);
-        // context.drawImage(minImg, -5, 0);
-        // context.rotate(hourR);
-        // context.drawImage(hourImg, -1, -22);
-    };
-</script>
+		function drawClock(){
+			// context 평행 이동
+			context.translate(250, 250);
+
+			// 시계 다이얼 이미지 그리기
+			context.drawImage(dialImg, -150, -150, 300, 300);
+
+			// 초침 그리기
+			context.rotate(rSec);
+			context.drawImage(secImg, -10, -130, 20, 130);
+			
+			// 분침 그리기
+			context.rotate(rMin - rSec);
+			context.drawImage(minImg, -10, -130, 20, 130);
+			
+			// 시침 그리기
+			context.rotate(rHour - rMin);
+			context.drawImage(hourImg, -10, -130, 20, 130);
+		}
+
+		var loadingCount = 0;
+
+		dialImg.onload = function(){
+			loadingCount++;
+			if(loadingCount == 4) {		// 모든 이미지가 로드 되었으면
+				drawClock();			// 시계를 그린다.
+			}
+		};
+
+		secImg.onload = function(){		
+			loadingCount++;
+			if(loadingCount == 4) {		// 모든 이미지가 로드 되었으면
+				drawClock();			// 시계를 그린다.
+			}
+		};
+
+		minImg.onload = function(){
+			loadingCount++;
+			if(loadingCount == 4) {		// 모든 이미지가 로드 되었으면
+				drawClock();			// 시계를 그린다.
+			}
+		};
+
+		hourImg.onload = function(){
+			loadingCount++;
+			if(loadingCount == 4) {		// 모든 이미지가 로드 되었으면
+				drawClock();			// 시계를 그린다.
+			}
+		};
+	</script>
 </body>
 </html>
