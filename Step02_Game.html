@@ -120,7 +120,7 @@
 			if(!isJang) {
 				jangOffsetY -= 10;
 				if(jangOffsetY <= 0) {
-					$("#myCanvas").addClass("animated bounce");
+					// $("#myCanvas").addClass("animated bounce");
 					jangOffsetY = 0;
 					isJang = true;
 					jangSound.currentTime = 0;
@@ -166,9 +166,14 @@
 
 		// mousedown 이벤트 처리
 		$("#myCanvas").mousedown(function(event){
- 			$("#myCanvas").removeClass("animated bounce");			
+ 			// $("#myCanvas").removeClass("animated bounce");	
 			// 장전되었으면
 			if(isJang) {
+ 				$("#myCanvas")
+ 				.addClass("animated bounce")
+ 				.one("animationend", function(){
+ 					$(this).removeClass("animated bounce");
+ 				});
 				// 총을 쏘았으므로 장전 해제
 				isJang = false;
 

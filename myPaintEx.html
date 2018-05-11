@@ -28,28 +28,69 @@
 </head>
 <body>
 	<canvas id="myCanvas" width="500" height="500"></canvas>
-	<div id="tools">
-		<ul>
-			<li><a id="line" href="#">선</a></li>
+	<div id="tools" class="dropdown">
+		<button data-toggle="dropdown" class="btn btn-default dropdown-toggle">메뉴 선택 <span class="caret"></span></button>
+		<ul class="dropdown-menu">
+			<li><a id="none" href="#">선택안함/a></li>
+			<li><a id="line" href="#">선/a></li>
 			<li><a id="rect" href="#">사각형</a></li>
-			<li><a id="circle" href="#">원</a></li>
+			<li><a id="roundRect" href="#">둥근 사각형</a></li>
+			<li><a id="none" href="#">원</a></li>
 		</ul>
 	</div>
 	<p id="info"></p>
 	<script src="js/jquery-3.3.1.js"></script>
 	<script>
+		var drawType = { 
+			none: "none",
+			line: "line", 
+			rect: "rect",
+			roundRect: "roundRect",
+			circle: "circle",
+			poly: "poly"
+		}
+		var currentDrawType = drawType.none;
 		var prev = { X: 0,  Y: 0, W: 0, H: 0 };
 		var canvas = document.querySelector("#myCanvas");
 		var context = canvas.getContext("2d");
 		var isDown = false;
-		var boxW = 5, boxHarf = boxW / 2;
+		var boxW = 5, boxHarf = (boxW / 2);
 
-		var drawBox = function(event){
-			// context.clearRect(prev.X-2, prev.Y-2, prev.W+4, prev.H+4);
-			context.clearRect(prev.X - boxHarf, 
-				              prev.Y - boxHarf - 1, 
-				              prev.W + boxW + 1, 
-				              prev.H + boxW + 1);
+		var drawRect = function(){
+			if(prev.W < 0) {
+				if(prev.H < 0) {
+					context.clearRect(prev.X + boxHarf + (boxW % 2), 
+						              prev.Y + boxHarf, 
+						              prev.W - boxW - (boxW % 2), 
+						              prev.H - boxW - (boxW % 2));
+				} else {
+					context.clearRect(prev.X + boxHarf + (boxW % 2), 
+						              prev.Y - boxHarf - (boxW % 2), 
+						              prev.W - boxW - (boxW % 2), 
+						              prev.H + boxW + (boxW % 2));
+				}
+			} else {
+				if(prev.H < 0) {
+					context.clearRect(prev.X - boxHarf, 
+						              prev.Y + boxHarf, 
+						              prev.W + boxW + (boxW % 2), 
+						              prev.H - boxW - (boxW % 2));
+				} else {
+					context.clearRect(prev.X - boxHarf, 
+						              prev.Y - boxHarf - (boxW % 2), 
+						              prev.W + boxW + (boxW % 2), 
+						              prev.H + boxW + (boxW % 2));
+				}
+			}
+		}
+
+		var draw = function(event){
+			switch(currentDrawType){
+				case drawType.rect:
+					drawRect();
+					break;
+			}
+
 			var w = event.offsetX - prev.X;
 			var h = event.offsetY - prev.Y;
 
@@ -58,6 +99,7 @@
 			context.strokeRect(prev.X, prev.Y, w, h);
 			prev.W = w;
 			prev.H = h;
+			$("#info").text("w: " + w + "   ,   h: " + h);
 		}
 
 		$("#myCanvas").mousedown(function(event){
@@ -69,12 +111,12 @@
 		});
 		$("#myCanvas").mousemove(function(event){
 			if(isDown) {
-				drawBox(event);
+				draw(event);
 			}
 		});
 
 		$("#myCanvas").mouseup(function(event){
-			drawBox(event);
+			draw(event);
 			isDown = false;
 		});
 
