@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step02_Game2.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<style>
+		#myCanvas{
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="800" height="500"></canvas>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
+
+		var backImg = new Image();
+		backImg.src = "images/background.jpg";
+
+		var ballImg = new Image();
+		ballImg.src = "images/lotto-ball-1.png";
+
+		var W = 800, H = 500, R = ballSize / 2;
+		var ballX=(W/2)-R, ballY=(H/2)-R, ballSize=50;
+		var speedX = 10, speedY = 10;
+
+		var balls = [];
+		for(var i=1; i<46; i++) {
+			var bImg = new Image();
+			bImg.src = "images/lotto-ball-" + i + ".png";
+
+			var obj = {
+				img: bImg,
+				X: ballX, 
+				Y: ballY,
+				speedX: Math.random() * speedX,
+				speedY: Math.random() * speedY,
+			}
+			balls.push(obj);
+		}
+
+		setInterval(drawScreen, 20);
+
+		function drawScreen(){
+			context.drawImage(backImg, 0, 0, W, H);
+
+			for(var i=0; i<balls.length; i++) {
+				context.drawImage(balls[i].img, 
+							  	  balls[i].X-R, 
+							  	  balls[i].Y-R, 
+							  	  ballSize, ballSize);
+			}
+
+			moveBall();
+		}
+
+		function moveBall(){
+			for(var i=0; i<balls.length; i++) {
+				if(balls[i].X >= W-R || balls[i].X <= R)
+				{
+					balls[i].speedX *= -1;
+				}
+				if(balls[i].Y >= H-R || balls[i].Y <= R)
+				{
+					balls[i].speedY *= -1;
+				}
+				balls[i].X += balls[i].speedX;
+				balls[i].Y += balls[i].speedY;
+			}
+		}
+	</script>
+</body>
+</html>
