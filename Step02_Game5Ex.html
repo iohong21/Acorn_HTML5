@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Step02_Game5.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<style>
+		#myCanvas{
+			border: 1px solid red;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="myCanvas" width="500" height="800"></canvas>
+	<script src="js/jquery-3.3.1.js"></script>
+	<script>
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
+
+		var backImg = new Image();
+		backImg.src = "images/backbg.png";
+
+		var back1Y = 0, back2Y = -800;
+		var scrollSpeed = 2;
+
+		//드레곤 이미지 로딩
+		var unitImg1=new Image();
+		var unitImg2=new Image();
+		unitImg1.src="images/unit1.png";
+		unitImg2.src="images/unit2.png";
+		//드레곤 이미지의 참조값을 배열에 넣는다.
+		var unitImgs=[unitImg1, unitImg2];
+
+		//드레곤의 좌표
+		var unitX=250;
+		var unitY=700;
+		//출력할 드레곤의 이미지 인덱스 
+		var unitIndex=0;
+		//카운트를 셀변수 0으로 초기화 
+		var count=0; 
+		var flySpeed = 8;
+
+
+		var missImg = new Image();
+		missImg.src = "images/mi2.png";
+		var missCount = 10;
+		var missSpeed = 10;
+		var missList = [];
+
+
+		//적기 이미지 로딩하기
+		var enemyImg1=new Image();
+		var enemyImg2=new Image();
+		enemyImg1.src="images/juck1.png";
+		enemyImg2.src="images/juck2.png";
+
+		//적기 이미지 객체를 배열에 저장하기
+		var enemyImgs=[enemyImg2, enemyImg1];
+		//적기 객체를 저장할 배열
+		var enemyList=[];
+		var createInterval = 0;
+
+		// 적기의 X 좌표
+		var enemyX = [50, 150, 250, 350, 450];
+
+		setInterval(drawScreen, 20);
+
+		function drawScreen(){
+			count++;
+			context.drawImage(backImg, 0, back2Y, 500, 800);
+			context.drawImage(backImg, 0, back1Y, 500, 800);
+
+			context.drawImage(unitImgs[unitIndex], unitX-50, unitY-50, 100, 100);
+			for(var i=0; i<missList.length; i++) {
+				var tmp = missList[i];
+				context.drawImage(missImg, tmp.x-25, tmp.y-25, 50, 50);
+			}
+
+			for(var i=0; i<enemyList.length; i++) {
+				var tmp = enemyList[i];
+				context.drawImage(enemyImgs[tmp.type], tmp.x-50, tmp.y-50, 100, 100);
+			}
+
+
+			backScroll();
+			unitAnimation();
+			makeMissile();
+			missScroll();
+			checkDead();
+			makeEnemy();
+			moveEnemy();
+		}
+
+		function checkEnemy(){
+			for(var i=0; i<missList.length; i++){
+				// i번쨰 미사일 객체를 불러온다
+				var m = missList[i];
+				for(var j=0; j<enemyList.length; j++){
+					var e = enemyList[j];
+					// 미사일이 적기를 맞추었는지 여부
+					var isShooted = m.x >= e.x-50 && m.x <= e.x+50 &&
+					   			    m.y >= e.y-50 && m.y <= e.y+50;
+					if(isShooted) {
+						e.energy -= 50;
+						if(e.energy <= 0) {
+							e.isDead = true;
+						}
+						m.isDead = true;
+					}
+				}
+			}
+		}
+
+		// 적기 이동
+		function moveEnemy(){
+			for(var i=0; i<enemyList.length; i++){
+				var tmp = enemyList[i];
+				tmp.y += 10;
+				if(tmp.y > 850){
+					tmp.isDead = true;
+				}
+			}
+		}
+
+		// 적기 객체를 만드는 함수
+		function makeEnemy(){
+			var ranNum = parseInt(Math.random()*50);
+
+			if(ranNum == 10) {
+				createInterval++;
+				if(createInterval % 2 == 0) {
+					for(var i=0; i<5; i++){
+						var tmp = {};
+
+						tmp.x = enemyX[i];
+						tmp.y = -50;
+						tmp.type = parseInt(Math.random() * 2);
+						tmp.energy = tmp.type == 0 ? 100 : 50;
+						tmp.isDead = false;
+
+						enemyList.push(tmp);
+					}
+				}
+			}
+		}
+
+		// 객체를 배열에서 제거할 함수
+		function checkDead(){
+			// 미사일 제거 검사
+			for(var i=missList.length-1; i>=0; i--){
+				var tmp = missList[i];
+				if(tmp.isDead){
+					missList.splice(i,1);
+				}
+			}
+
+			// 적기 제거 검사
+			for(var i=enemyList.length-1; i>=0; i--){
+				var tmp = enemyList[i];
+				if(tmp.isDead){
+					enemyList.splice(i,1);
+				}
+			}
+		}
+
+		// 미사일을 만드는 함수
+		function makeMissile(){
+			if(count % missCount == 0) {
+				var obj = {};
+
+				// 미사일의 출발점은 unit 의 위치 이다.
+				obj.x = unitX;
+				obj.y = unitY-50;
+
+				// 배열에서 제거할지 여부 (화면을 벗어나거나 적에 부딧치면 true로 변경)
+				obj.isDead = false;
+
+				missList.push(obj);
+			}
+		}
+
+		// 미사일 스크롤
+		function missScroll(){
+			for(var i=0; i<missList.length; i++){
+				var tmp = missList[i];
+				tmp.y -= 10;
+				if(tmp.y <= -25) {
+					tmp.isDead = true;
+				}
+			}
+		}
+
+		function unitAnimation(){
+			if(count % 8 == 0) {
+				unitIndex = ++unitIndex % 2;
+			}
+		}
+
+		function backScroll() {
+			back1Y += scrollSpeed;
+			back2Y += scrollSpeed;
+			if(back1Y >= 800) {
+				back1Y = -800;
+				back2Y = 0;
+			}
+			if(back2Y >= 800) {
+				back2Y = -800;
+				back1Y = 0;
+			}
+		}
+
+		$("#myCanvas").mousemove(function(event){
+			unitX = event.offsetX >= 450 ? 450 
+			      : event.offsetX <= 50 ? 50 : event.offsetX;
+		});
+	</script>
+</body>
+</html>

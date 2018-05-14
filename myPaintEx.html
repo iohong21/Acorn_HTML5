@@ -3,43 +3,35 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Step01_Canvas.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
 	<style>
 		#myCanvas{
 			border: 1px solid red;
+			width: 800px;
+			height: 500px;
 		}
 		#tools{
 			border: 1px solid black;
-			width: 500px;
-			height: 50px;
-		}
-		#tools>ul{
-			list-style-type: none;
-		}
-		#tools>ul>li{
-			float: left;
-			margin: 0;
-			padding: 0 10px;
-		}
-		#tools>ul>li>a{
-			text-decoration: none;
-			color: black;
+			width: 800px;
 		}
 	</style>
 </head>
 <body>
-	<canvas id="myCanvas" width="500" height="500"></canvas>
+	<canvas id="myCanvas"></canvas>
 	<div id="tools" class="dropdown">
-		<button data-toggle="dropdown" class="btn btn-default dropdown-toggle">메뉴 선택 <span class="caret"></span></button>
+		<button data-toggle="dropdown" class="btn btn-primary dropdown-toggle"> <span id="kind">선택안함</span>&nbsp;<span class="caret"></span></button>
 		<ul class="dropdown-menu">
-			<li><a id="none" href="#">선택안함/a></li>
-			<li><a id="line" href="#">선/a></li>
-			<li><a id="rect" href="#">사각형</a></li>
-			<li><a id="roundRect" href="#">둥근 사각형</a></li>
-			<li><a id="none" href="#">원</a></li>
+			<li><a id="none" href="#">선택안함</li>
+			<li><a id="line" href="#">선</li>
+			<li><a id="rect" href="#">사각형</li>
+			<li><a id="roundRect" href="#">둥근 사각형</li>
+			<li><a id="circle" href="#">원</li>
 		</ul>
 	</div>
+
 	<p id="info"></p>
 	<script src="js/jquery-3.3.1.js"></script>
+	<script src="js/bootstrap.js"></script>
 	<script>
 		var drawType = { 
 			none: "none",
@@ -49,14 +41,59 @@
 			circle: "circle",
 			poly: "poly"
 		}
-		var currentDrawType = drawType.none;
-		var prev = { X: 0,  Y: 0, W: 0, H: 0 };
+
 		var canvas = document.querySelector("#myCanvas");
 		var context = canvas.getContext("2d");
-		var isDown = false;
-		var boxW = 5, boxHarf = (boxW / 2);
 
-		var drawRect = function(){
+		var currentDrawType = drawType.none;
+		var prev = { X: 0,  Y: 0, W: 0, H: 0 };
+		var isDown = false;
+		var boxW = 1, boxHarf = (boxW / 2);
+
+		// var drawRectangle = function(event){
+		// 	if(prev.W < 0) {
+		// 		if(prev.H < 0) {
+		// 			context.clearRect(prev.X + boxHarf + (boxW % 2), 
+		// 				              prev.Y + boxHarf, 
+		// 				              prev.W - boxW - (boxW % 2), 
+		// 				              prev.H - boxW - (boxW % 2));
+		// 		} else {
+		// 			context.clearRect(prev.X + boxHarf + (boxW % 2), 
+		// 				              prev.Y - boxHarf - (boxW % 2), 
+		// 				              prev.W - boxW - (boxW % 2), 
+		// 				              prev.H + boxW + (boxW % 2));
+		// 		}
+		// 	} else {
+		// 		if(prev.H < 0) {
+		// 			context.clearRect(prev.X - boxHarf, 
+		// 				              prev.Y + boxHarf, 
+		// 				              prev.W + boxW + (boxW % 2), 
+		// 				              prev.H - boxW - (boxW % 2));
+		// 		} else {
+		// 			context.clearRect(prev.X - boxHarf, 
+		// 				              prev.Y - boxHarf - (boxW % 2), 
+		// 				              prev.W + boxW + (boxW % 2), 
+		// 				              prev.H + boxW + (boxW % 2));
+		// 		}
+		// 	}
+		// 	var w = event.offsetX - prev.X;
+		// 	var h = event.offsetY - prev.Y;
+
+		// 	context.strokeStyle="#ff0000";
+		// 	context.lineWidth = boxW;
+		// 	context.strokeRect(prev.X, prev.Y, w, h);
+		// 	prev.W = w;
+		// 	prev.H = h;
+		// 	$("#info").text("w: " + w + "   ,   h: " + h);
+		// }
+
+		var draw = function(event){
+			// switch(currentDrawType){
+			// 	case drawType.rect:
+			// 		drawRectangle(event);
+			// 		break;
+			// }
+
 			if(prev.W < 0) {
 				if(prev.H < 0) {
 					context.clearRect(prev.X + boxHarf + (boxW % 2), 
@@ -82,24 +119,15 @@
 						              prev.H + boxW + (boxW % 2));
 				}
 			}
-		}
-
-		var draw = function(event){
-			switch(currentDrawType){
-				case drawType.rect:
-					drawRect();
-					break;
-			}
-
 			var w = event.offsetX - prev.X;
 			var h = event.offsetY - prev.Y;
 
 			context.strokeStyle="#ff0000";
-			context.lineWidth = boxW;
+			// context.lineWidth = boxW;
 			context.strokeRect(prev.X, prev.Y, w, h);
 			prev.W = w;
 			prev.H = h;
-			$("#info").text("w: " + w + "   ,   h: " + h);
+			$("#info").text("prevX: " + prev.X + " , prevY: " + prev.Y + "   /   w: " + w + "   ,   h: " + h);
 		}
 
 		$("#myCanvas").mousedown(function(event){
@@ -109,6 +137,7 @@
 			prev.H = 0;
 			isDown = true;
 		});
+
 		$("#myCanvas").mousemove(function(event){
 			if(isDown) {
 				draw(event);
@@ -120,6 +149,10 @@
 			isDown = false;
 		});
 
+		$("#tools>ul>li a").click(function(){
+			$("#kind").text($(this).text());
+			currentDrawType = $(this).attr("id");
+		});
 
 
 		// // canvas 의 참조값 얻어오기 

@@ -23,9 +23,12 @@
 		var ballImg = new Image();
 		ballImg.src = "images/lotto-ball-1.png";
 
-		var W = 800, H = 500, R = ballSize / 2;
-		var ballX=(W/2)-R, ballY=(H/2)-R, ballSize=50;
+		var W = 800, H = 500;
+		var ballSize=50;
+		var R = ballSize / 2;
+		var ballX=(W/2)-R, ballY=(H/2)-R;
 		var speedX = 10, speedY = 10;
+		var rndMax = 20, rndReverse = 10;
 
 		var balls = [];
 		for(var i=1; i<46; i++) {
@@ -36,8 +39,8 @@
 				img: bImg,
 				X: ballX, 
 				Y: ballY,
-				speedX: Math.random() * speedX,
-				speedY: Math.random() * speedY,
+				speedX: Math.random() * rndMax - rndReverse,
+				speedY: Math.random() * rndMax - rndReverse,
 			}
 			balls.push(obj);
 		}

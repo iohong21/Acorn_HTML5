@@ -2,98 +2,140 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>myPaint.html</title>
+	<title>Paint</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
 	<style>
-		#tools{
-			border: 1px solid black;
-			width: 500px;
-			height: 50px;
-		}
-		#tools>ul{
-			list-style-type: none;
-		}
-		#tools>ul>li{
-			float: left;
-			margin: 0;
-			padding: 0 10px;
-		}
-		#tools>ul>li>a{
-			text-decoration: none;
-			color: black;
-		}
 		#myCanvas{
 			border: 1px solid red;
-			/*margin-top: 2px;*/
-			width: 500px;
-			height: 500px;
 		}
+		#tools{
+			border: 1px solid black;
+			width: 800px;
+		}		
 	</style>
 </head>
 <body>
-	<canvas id="myCanvas"></canvas>
-	<div id="tools">
-		<ul>
-			<li><a id="line" href="#">선</a></li>
-			<li><a id="rect" href="#">사각형</a></li>
-			<li><a id="circle" href="#">원</a></li>
+	<canvas id="myCanvas" width="800" height="500"></canvas>
+	<div id="tools" class="dropdown">
+		<button data-toggle="dropdown" class="btn btn-primary dropdown-toggle"> <span id="kind">선택안함</span>&nbsp;<span class="caret"></span></button>
+		<ul class="dropdown-menu">
+			<li><a id="none" href="#">선택안함</li>
+			<li><a id="line" href="#">선</li>
+			<li><a id="rect" href="#">사각형</li>
+			<li><a id="roundRect" href="#">둥근 사각형</li>
+			<li><a id="circle" href="#">원</li>
 		</ul>
 	</div>
+	<p id="downInfo"></p>
 	<p id="info"></p>
 	<script src="js/jquery-3.3.1.js"></script>
+	<script src="js/bootstrap.js"></script>
 	<script>
-		var drawType = {
-			none: "notselect", 
-			line: "line",
-			rectangle: "rectangle", 
-			circle: "circle"
-		};
-		var isFirst = true;
-		var currentDrawType = drawType.none;
-		var pos = {X:0, Y:0};
-		var context = $("#myCanvas")[0].getContext("2d");
+		var canvas = document.querySelector("#myCanvas");
+		var context = canvas.getContext("2d");
 
-		var getAngle = function(r){
-			return (Math.PI/180)*r;
+		var drawType = { 
+			none: "none",
+			line: "line", 
+			rect: "rect",
+			roundRect: "roundRect",
+			circle: "circle",
+			poly: "poly"
 		}
-		$("#line").click(function(){
-			currentDrawType = drawType.line;
-			$("#info").text("line click");
-		});
-		$("#rect").click(function(){
-			currentDrawType = drawType.rectangle;
-			$("#info").text("rect click");
-		});
-		$("#circle").click(function(){
-			currentDrawType = drawType.circle;
-			$("#info").text("circle click");
+
+		var currentDrawType = drawType.none;
+
+		var isDown = false;
+		var prev = { X: 0,  Y: 0, W: 0, H: 0 };
+		var boxW = 1, boxHarf = (boxW / 2);
+
+		var drawObj = [];
+
+		var draw = function(event){
+			if(prev.W < 0) {
+				if(prev.H < 0) {
+					context.clearRect(prev.X + boxHarf + (boxW % 2), 
+						              prev.Y + boxHarf, 
+						              prev.W - boxW - (boxW % 2), 
+						              prev.H - boxW - (boxW % 2));
+				} else {
+					context.clearRect(prev.X + boxHarf + (boxW % 2), 
+						              prev.Y - boxHarf - (boxW % 2), 
+						              prev.W - boxW - (boxW % 2), 
+						              prev.H + boxW + (boxW % 2));
+				}
+			} else {
+				if(prev.H < 0) {
+					context.clearRect(prev.X - boxHarf, 
+						              prev.Y + boxHarf, 
+						              prev.W + boxW + (boxW % 2), 
+						              prev.H - boxW - (boxW % 2));
+				} else {
+					context.clearRect(prev.X - boxHarf, 
+						              prev.Y - boxHarf - (boxW % 2), 
+						              prev.W + boxW + (boxW % 2), 
+						              prev.H + boxW + (boxW % 2));
+				}
+			}
+			var w = event.offsetX - prev.X;
+			var h = event.offsetY - prev.Y;
+
+			context.strokeStyle="#ff0000";
+			context.strokeRect(prev.X, prev.Y, w, h);
+			prev.W = w;
+			prev.H = h;
+
+			$("#info").text("prevX: " + prev.X + " , prevY: " + prev.Y + "   /   w: " + w + "   ,   h: " + h);
+		}
+
+		$("#tools>ul>li a").click(function(){
+			$("#kind").text($(this).text());
+			currentDrawType = $(this).attr("id");
 		});
 
 		$("#myCanvas").mousedown(function(event){
 			if(currentDrawType != drawType.none) {
-				if(isFirst) {
-					pos.X = event.offsetX;
-					pos.Y = event.offsetY;
-
-					context.fillStyle = "blue";
-					context.lineWidth = 1;
-					context.fillRect(10, 10, 50, 50);
-
-					$("#info").text("mouse down  X: " + pos.X + "   ,   Y: " + pos.Y);
-				} else {
-					if(currentDrawType == drawType.line) {
-						context.strokeStyle="#0000ff";
-						// context.lineWidth=2;
-						context.beginPath();
-						context.moveTo(pos.X, pos.Y);
-						context.lineTo(event.offsetX, event.offsetY);
-						context.stroke();
-						context.closePath();
-						$("#info").text("X: "+ pos.X + " , Y: " + pos.Y + "   to  X: " + event.offsetX + " , Y: " + event.offsetY);
-					}
-				}
-				isFirst = !isFirst;
+				prev.X = event.offsetX;
+				prev.Y = event.offsetY;
+				prev.W = 0;
+				prev.H = 0;
+				isDown = true;
+				$("#downInfo").text("x: " + event.offsetX + "   ,   y: " + event.offsetY);
 			}
 		});
+
+		$("#myCanvas").mousemove(function(event){
+			if(isDown) {
+				draw(event);
+			}
+		});
+
+		$("#myCanvas").mouseup(function(event){
+			if(isDown) {
+				draw(event);
+				var obj = {
+					kind: currentDrawType,
+					x: prev.X,
+					y: prev.Y,
+					w: prev.W,
+					h: prev.Y,
+					color: "#ff0000"
+				}
+				drawObj.push(obj);
+				isDown = false;
+			}
+		});
+
+		var drawTmr = setInterval(function(){
+			for(var i=0; i<drawObj.length; i++){
+				var tmp = drawObj[i];
+				switch(tmp.kind){
+					case drawType.rect:
+						context.strokeStyle = tmp.color;
+						context.strokeRect(tmp.x, tmp.y, tmp.w, tmp.h);
+				}
+			}
+		}, 200);
 	</script>
 </body>
 </html>
