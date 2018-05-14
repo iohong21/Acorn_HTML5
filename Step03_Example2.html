@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>	
+	<title>Step03_Example2.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css"/>
+</head>
+<body>
+	<button id="testBtn">테스트</button>
+	<p id="myConsole"></p>
+	<script src="js/jquery-3.3.1.js"></script>	
+	<script src="js/bootstrap.js"></script>
+	<script>
+		// object 에 있는 정보를 localStorage 에 저장하고 싶다면 ?
+		var mem = { num:1, name:"김구라", isMan:true};
+
+		// object 의 정보를 JSON 문자열로 바꾼다.
+		var jsonMem = JSON.stringify(mem);
+
+		// localStorage 에 저장
+		localStorage.jsonMem = jsonMem;
+
+		$("#testBtn").click(function(){
+			var jsonMem = JSON.parse(localStorage.jsonMem);
+			$("#myConsole").text("num: " + jsonMem.num + "  ,  name: " + jsonMem.name + "   ,  isMan: " + jsonMem.isMan);
+		});
+	</script>
+</body>
+</html>
