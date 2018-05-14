@@ -51,7 +51,7 @@
 
 		var drawObj = [];
 
-		var draw = function(event){
+		var clearPrevRect = function(){
 			if(prev.W < 0) {
 				if(prev.H < 0) {
 					context.clearRect(prev.X + boxHarf + (boxW % 2), 
@@ -77,6 +77,10 @@
 						              prev.H + boxW + (boxW % 2));
 				}
 			}
+		};
+
+		var drawRectangle = function(){
+			clearPrevRect();
 			var w = event.offsetX - prev.X;
 			var h = event.offsetY - prev.Y;
 
@@ -86,6 +90,22 @@
 			prev.H = h;
 
 			$("#info").text("prevX: " + prev.X + " , prevY: " + prev.Y + "   /   w: " + w + "   ,   h: " + h);
+		};
+
+		var drawLine = function(){
+			
+		};
+		
+		var draw = function(event){
+			switch(currentDrawType){
+				case drawType.rect:
+					drawRectangle();
+					break;
+
+				case drawType.line:
+					drawLine();
+					break;
+			}
 		}
 
 		$("#tools>ul>li a").click(function(){
@@ -118,7 +138,7 @@
 					x: prev.X,
 					y: prev.Y,
 					w: prev.W,
-					h: prev.Y,
+					h: prev.H,
 					color: "#ff0000"
 				}
 				drawObj.push(obj);
