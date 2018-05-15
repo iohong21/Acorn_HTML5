@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>	
+	<title>WebSqlEx.html</title>
+	<link rel="stylesheet" href="css/bootstrap.css"/>
+</head>
+<body>
+	<label for="inpNum">번호 <input type="text" id="inpNum"></label><br>
+	<label for="inpName">성명 <input type="text" id="inpName"></label><br>
+	<label for="inpAddr">주소 <input type="text" id="inpAddr"></label><br>
+	<label for="inpGender">성별 <input type="text" id="inpGender"></label><br>
+	<button id="add">추가</button>
+	<button id="query">조회</button>
+	<br>
+	<table>
+		<thead>
+			<tr>
+				<th>번호</th>
+				<th>성명</th>
+				<th>주소</th>
+				<th>성별</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+		</tbody>
+	</table>
+	<script src="js/jquery-3.3.1.js"></script>	
+	<script src="js/bootstrap.js"></script>
+	<script>
+		var db;
+		var isCreate = window.openDatabase;
+		if(isCreate) {
+			db = window.openDatabase("shongDB", "1.0", "test", 1024*1000*10);
+			db.transaction(function(tr){
+				var sql = "create table if not exists friend(num, name, addr, gender)";
+				tr.executeSql(sql, [], success, fail);
+				function success(){};
+				function fail(){
+					alert("Table 생성 실패");
+				}
+			});
+		}
+
+		$("#add").click(function(){
+			if(isCreate){
+				db.transaction(function(tr){
+					var num = $("#inpNum").val();
+					var name = $("#inpName").val();
+					var addr = $("#inpAddr").val();
+					var gender = $("#inpGender").val();
+
+					var sql = "insert into friend(num, name, addr, gender) values (?,?,?,?)";
+					tr.executeSql(sql, [num, name, addr, gender], success, fail);
+
+					function success(){
+						alert("자료 추가");
+					};
+					function fail(){
+						alert("자료 추가 실패");
+					};
+				});
+			}
+		});
+
+		$("#query").click(function(){
+			if(isCreate){
+				db.transaction(function(tr){
+					var sql = "select num, name, addr, gender from friend";
+					tr.executeSql(sql, [], success, fail);
+				});
+
+				function success(tr, rs){
+					$("tbody tr").remove();
+					for(var i=0; i<rs.rows.length; i++){
+						var row = rs.rows.item(i);
+						var num = row.num;
+						var name = row.name;
+						var addr = row.addr;
+						var gender = row.gender;
+					}
+				}
+
+				function fail(){
+					alert("자료 조회 실패");
+				}
+			}
+		});
+	</script>
+</body>
+</html>

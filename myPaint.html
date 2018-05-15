@@ -16,16 +16,25 @@
 </head>
 <body>
 	<canvas id="myCanvas" width="800" height="500"></canvas>
-	<div id="tools" class="dropdown">
-		<button data-toggle="dropdown" class="btn btn-primary dropdown-toggle"> <span id="kind">선택안함</span>&nbsp;<span class="caret"></span></button>
-		<ul class="dropdown-menu">
-			<li><a id="none" href="#">선택안함</li>
-			<li><a id="line" href="#">선</li>
-			<li><a id="rect" href="#">사각형</li>
-			<li><a id="roundRect" href="#">둥근 사각형</li>
-			<li><a id="circle" href="#">원</li>
-		</ul>
+	<div class="row">
+		<div class="col-xs-2">
+			<div id="tools" class="dropdown">
+				<button data-toggle="dropdown" class="btn btn-primary dropdown-toggle"> <span id="kind">선택안함</span>&nbsp;<span class="caret"></span></button>
+				<ul class="dropdown-menu">
+					<li><a id="none" href="#">선택안함</li>
+					<li><a id="line" href="#">선</li>
+					<li><a id="rect" href="#">사각형</li>
+					<li><a id="roundRect" href="#">둥근 사각형</li>
+					<li><a id="circle" href="#">원</li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-xs-2">
+			<input type="color" id="myColor">
+		</div>
 	</div>
+	<button id="drawBtn">draw</button>
+	<button id="eraseBtn">erase</button>
 	<p id="downInfo"></p>
 	<p id="info"></p>
 	<script src="js/jquery-3.3.1.js"></script>
@@ -44,12 +53,41 @@
 		}
 
 		var currentDrawType = drawType.none;
+		var currentForeColor = "#000000";
 
 		var isDown = false;
 		var prev = { X: 0,  Y: 0, W: 0, H: 0 };
 		var boxW = 1, boxHarf = (boxW / 2);
 
 		var drawObj = [];
+
+		$("#drawBtn").click(function(){
+			context.globalCompositeOperation = "xor";
+			context.strokeStyle = "black";
+			context.beginPath();
+			context.moveTo(100, 100);
+			context.lineTo(300, 300);
+			context.stroke();
+			context.closePath();
+		});
+		$("#eraseBtn").click(function(){
+			context.globalCompositeOperation = "xor";
+			context.beginPath();
+			context.moveTo(98, 100);
+			context.lineTo(298, 300);
+
+			context.moveTo(99, 100);
+			context.lineTo(299, 300);
+
+			context.moveTo(100, 100);
+			context.lineTo(300, 300);
+
+			context.moveTo(101, 100);
+			context.lineTo(301, 300);
+
+			context.stroke();
+			context.closePath();
+		});
 
 		var clearPrevRect = function(){
 			if(prev.W < 0) {
@@ -77,36 +115,84 @@
 						              prev.H + boxW + (boxW % 2));
 				}
 			}
-		};
+		};		
 
-		var drawRectangle = function(){
+		var drawClearLine = function(x1,y1,x2,y2,drawOption){
+			// context.globalCompositeOperation = drawOption;
+			context.strokeStyle = currentForeColor;
+			context.beginPath();
+			context.moveTo(x1, y1);
+			context.lineTo(x2, y2);
+			context.stroke();
+			context.closePath();
+		}
+
+		var drawRectangle = function(event){
 			clearPrevRect();
 			var w = event.offsetX - prev.X;
 			var h = event.offsetY - prev.Y;
 
-			context.strokeStyle="#ff0000";
+			context.strokeStyle = currentForeColor;
 			context.strokeRect(prev.X, prev.Y, w, h);
 			prev.W = w;
 			prev.H = h;
-
-			$("#info").text("prevX: " + prev.X + " , prevY: " + prev.Y + "   /   w: " + w + "   ,   h: " + h);
 		};
 
-		var drawLine = function(){
-			
+		var drawLine = function(event){
+			drawClearLine(prev.X,prev.Y,prev.W,prev.H,"xor");
+			prev.W = event.offsetX;
+			prev.H = event.offsetY;
+			drawClearLine(prev.X,prev.Y,prev.W,prev.H,"source-over");
+			// context.globalCompositeOperation = drawOption;
+			// context.strokeStyle = currentForeColor;
+			// context.beginPath();
+			// context.moveTo(x1, y1);
+			// context.lineTo(x2, y2);
+			// context.stroke();
+			// context.closePath();
+		};
+
+		var drawAllObject = function(){
+			for(var i=0; i<drawObj.length; i++){
+				var tmp = drawObj[i];
+				switch(tmp.kind){
+					case drawType.rect:
+						context.globalCompositeOperation = "source-over";
+						context.strokeStyle = tmp.color;
+						context.strokeRect(tmp.x, tmp.y, tmp.w, tmp.h);
+						break;
+
+					case drawType.line:
+						context.globalCompositeOperation = "source-over";
+						context.strokeStyle = currentForeColor;
+						context.beginPath();
+						context.moveTo(tmp.x, tmp.y);
+						context.lineTo(tmp.w, tmp.h);
+						context.stroke();
+						context.closePath();
+						break;
+				}
+			}
 		};
 		
 		var draw = function(event){
+
+			// drawAllObject();
+
 			switch(currentDrawType){
 				case drawType.rect:
-					drawRectangle();
+					drawRectangle(event);
 					break;
 
 				case drawType.line:
-					drawLine();
+					drawLine(event);
 					break;
 			}
 		}
+
+		$("[type=color]").change(function(){
+			currentForeColor = $(this).val();
+		});
 
 		$("#tools>ul>li a").click(function(){
 			$("#kind").text($(this).text());
@@ -117,8 +203,8 @@
 			if(currentDrawType != drawType.none) {
 				prev.X = event.offsetX;
 				prev.Y = event.offsetY;
-				prev.W = 0;
-				prev.H = 0;
+				prev.W = event.offsetX;
+				prev.H = event.offsetY;
 				isDown = true;
 				$("#downInfo").text("x: " + event.offsetX + "   ,   y: " + event.offsetY);
 			}
@@ -132,30 +218,22 @@
 
 		$("#myCanvas").mouseup(function(event){
 			if(isDown) {
+
 				draw(event);
+
 				var obj = {
 					kind: currentDrawType,
 					x: prev.X,
 					y: prev.Y,
 					w: prev.W,
 					h: prev.H,
-					color: "#ff0000"
+					color: currentForeColor,
+					thickness: 1
 				}
 				drawObj.push(obj);
 				isDown = false;
 			}
 		});
-
-		var drawTmr = setInterval(function(){
-			for(var i=0; i<drawObj.length; i++){
-				var tmp = drawObj[i];
-				switch(tmp.kind){
-					case drawType.rect:
-						context.strokeStyle = tmp.color;
-						context.strokeRect(tmp.x, tmp.y, tmp.w, tmp.h);
-				}
-			}
-		}, 200);
 	</script>
 </body>
 </html>
